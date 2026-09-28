@@ -9,16 +9,20 @@
     "128": "icons/logo-128.png"
   },
   "action": {
+    "default_title": "Save to Karakeep",
     "default_icon": {
       "16": "icons/logo-16.png",
       "48": "icons/logo-48.png",
       "128": "icons/logo-128.png"
     }
   },
+  "background": {
+    "service_worker": "background.js"
+  },
   "options_ui": {
     "page": "options.html",
     "open_in_tab": false
   },
-  "permissions": ["storage"],
+  "permissions": ["activeTab", "storage"],
   "host_permissions": ["https://keep.booq.cc/*"]
 }
