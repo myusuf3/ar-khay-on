@@ -16,6 +16,15 @@ chrome.action.onClicked.addListener((tab) => {
   save(tab, { type: "link", url: tab.url, title: tab.title });
 });
 
+// Clicks on the in-page toast.
+chrome.runtime.onMessage.addListener((msg) => {
+  if (msg?.kk === "open" && msg.id) {
+    chrome.tabs.create({ url: `${SERVER}/dashboard/preview/${encodeURIComponent(msg.id)}` });
+  } else if (msg?.kk === "setup") {
+    chrome.runtime.openOptionsPage();
+  }
+});
+
 // ---------------------------------------------------------------- core
 
 async function save(tab, bookmark) {
@@ -45,7 +54,7 @@ async function save(tab, bookmark) {
     });
 
     if (res.status === 401 || res.status === 403) {
-      return notify(tabId, "setup", { message: "API key rejected" });
+      return notify(tabId, "setup", { message: "API key rejected — click to fix" });
     }
     if (!res.ok) {
       const text = await res.text().catch(() => "");
@@ -63,10 +72,20 @@ async function save(tab, bookmark) {
 
 // ---------------------------------------------------------------- ui
 
-// Feedback via the toolbar badge.
-async function notify(tabId, state) {
+// Show the in-page toast; fall back to a badge on pages we can't script
+// (chrome://, the Web Store, the PDF viewer, etc).
+async function notify(tabId, state, opts = {}) {
   if (tabId == null) return;
-  badge(tabId, state);
+  try {
+    await chrome.scripting.executeScript({ target: { tabId }, files: ["toast.js"] });
+    await chrome.scripting.executeScript({
+      target: { tabId },
+      func: (s, o) => globalThis.__karakeepToast?.(s, o),
+      args: [state, opts],
+    });
+  } catch {
+    badge(tabId, state);
+  }
 }
 
 const BADGES = {
