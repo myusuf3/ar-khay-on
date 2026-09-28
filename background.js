@@ -2,9 +2,20 @@
 const SERVER = "https://keep.booq.cc";
 const API = `${SERVER}/api/v1`;
 
+const MENU_PAGE = "kk-save-page";
+const MENU_LINK = "kk-save-link";
+const MENU_IMAGE = "kk-save-image";
+const MENU_TEXT = "kk-save-text";
+
 // ---------------------------------------------------------------- setup
 
 chrome.runtime.onInstalled.addListener(async ({ reason }) => {
+  chrome.contextMenus.removeAll(() => {
+    chrome.contextMenus.create({ id: MENU_PAGE, title: "Save page to Karakeep", contexts: ["page"] });
+    chrome.contextMenus.create({ id: MENU_LINK, title: "Save link to Karakeep", contexts: ["link"] });
+    chrome.contextMenus.create({ id: MENU_IMAGE, title: "Save image to Karakeep", contexts: ["image"] });
+    chrome.contextMenus.create({ id: MENU_TEXT, title: "Save selection to Karakeep", contexts: ["selection"] });
+  });
   if (reason === "install" && !(await getApiKey())) {
     chrome.runtime.openOptionsPage();
   }
@@ -14,6 +25,19 @@ chrome.runtime.onInstalled.addListener(async ({ reason }) => {
 
 chrome.action.onClicked.addListener((tab) => {
   save(tab, { type: "link", url: tab.url, title: tab.title });
+});
+
+chrome.contextMenus.onClicked.addListener((info, tab) => {
+  switch (info.menuItemId) {
+    case MENU_PAGE:
+      return save(tab, { type: "link", url: info.pageUrl, title: tab?.title });
+    case MENU_LINK:
+      return save(tab, { type: "link", url: info.linkUrl });
+    case MENU_IMAGE:
+      return save(tab, { type: "link", url: info.srcUrl });
+    case MENU_TEXT:
+      return save(tab, { type: "text", text: info.selectionText, sourceUrl: info.pageUrl });
+  }
 });
 
 // Clicks on the in-page toast.

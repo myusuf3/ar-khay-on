@@ -23,6 +23,6 @@
     "page": "options.html",
     "open_in_tab": false
   },
-  "permissions": ["activeTab", "scripting", "storage"],
+  "permissions": ["activeTab", "scripting", "storage", "contextMenus"],
   "host_permissions": ["https://keep.booq.cc/*"]
 }
