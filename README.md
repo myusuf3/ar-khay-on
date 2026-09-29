@@ -16,9 +16,9 @@ Honors `prefers-reduced-motion`. On pages Chrome won't let extensions script
 
 Right-click menu: save page, link, image, or selected text.
 
-The toolbar icon follows Chrome's light/dark mode: black glyph on light, white on dark.
-Service workers can't read `prefers-color-scheme`, so a hidden offscreen document
-(`offscreen.html`) watches it and tells the background to call `action.setIcon`.
+The toolbar icon is a solid black tile with a white glyph, so it stays visible on any
+toolbar color - light, dark, or a custom theme. Chrome doesn't expose the toolbar color
+to extensions, so swapping icons per theme can't be done reliably.
 
 ## Install
 
@@ -41,4 +41,4 @@ If you want, remove the official Karakeep extension. You can change the shortcut
 The server is hardcoded (`SERVER` in `background.js`, `API` in `options.js`,
 `host_permissions` in `manifest.json`).
 
-Icons are taken from the Karakeep repo (`apps/browser-extension/public`, AGPL-3.0).
+Icons are taken from the Karakeep repo (`apps/browser-extension/public`, AGPL-3.0), with the glyph cutout filled in white.
