@@ -7,32 +7,6 @@ const MENU_LINK = "kk-save-link";
 const MENU_IMAGE = "kk-save-image";
 const MENU_TEXT = "kk-save-text";
 
-// ---------------------------------------------------------------- theme
-
-// Black glyph on light toolbars, white glyph on dark ones.
-const ICONS = {
-  light: { 16: "icons/logo-16.png", 48: "icons/logo-48.png", 128: "icons/logo-128.png" },
-  dark: { 16: "icons/logo-16-darkmode.png", 48: "icons/logo-48-darkmode.png", 128: "icons/logo-128-darkmode.png" },
-};
-
-async function ensureThemeWatcher() {
-  try {
-    const existing = await chrome.runtime.getContexts({ contextTypes: ["OFFSCREEN_DOCUMENT"] });
-    if (existing.length) return;
-    await chrome.offscreen.createDocument({
-      url: "offscreen.html",
-      reasons: ["MATCH_MEDIA"],
-      justification: "Match the toolbar icon to light/dark mode",
-    });
-  } catch (e) {
-    // Races on startup can throw "only one offscreen document" — harmless.
-    if (!String(e).includes("single offscreen")) console.warn(e);
-  }
-}
-
-chrome.runtime.onStartup.addListener(ensureThemeWatcher);
-ensureThemeWatcher();
-
 // ---------------------------------------------------------------- setup
 
 chrome.runtime.onInstalled.addListener(async ({ reason }) => {
@@ -68,9 +42,7 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
 
 // Clicks on the in-page toast.
 chrome.runtime.onMessage.addListener((msg) => {
-  if (msg?.kk === "scheme") {
-    chrome.action.setIcon({ path: msg.dark ? ICONS.dark : ICONS.light });
-  } else if (msg?.kk === "open" && msg.id) {
+  if (msg?.kk === "open" && msg.id) {
     chrome.tabs.create({ url: `${SERVER}/dashboard/preview/${encodeURIComponent(msg.id)}` });
   } else if (msg?.kk === "setup") {
     chrome.runtime.openOptionsPage();
